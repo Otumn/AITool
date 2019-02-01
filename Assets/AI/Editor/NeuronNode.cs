@@ -18,7 +18,18 @@ namespace Otumn.Ai
         private GUIStyle defaultNodeStyle;
         private GUIStyle selectedNodeStyle;
 
-        public NeuronNode(Vector2 position, float diameter, GUIStyle nodeStyle, GUIStyle selectedStyle, GUIStyle inPointStyle, GUIStyle outPointStyle, Action<ConnectionPoint> OnClickInPoint, Action<ConnectionPoint> OnClickOutPoint)
+        private Action<NeuronNode> OnRemoveNode;
+
+        public NeuronNode(
+            Vector2 position, 
+            float diameter, 
+            GUIStyle nodeStyle, 
+            GUIStyle selectedStyle, 
+            GUIStyle inPointStyle, 
+            GUIStyle outPointStyle, 
+            Action<ConnectionPoint> OnClickInPoint, 
+            Action<ConnectionPoint> OnClickOutPoint,
+            Action<NeuronNode> OnClickRemoveNode)
         {
             rect = new Rect(position.x, position.y, diameter, diameter);
             usedStyle = nodeStyle;
@@ -26,6 +37,7 @@ namespace Otumn.Ai
             outPoint = new ConnectionPoint(this, ConnectionPointType.Out, outPointStyle, OnClickOutPoint);
             defaultNodeStyle = nodeStyle;
             selectedNodeStyle = selectedStyle;
+            OnRemoveNode = OnClickRemoveNode;
         }
 
         public void Drag(Vector2 delta)
@@ -61,6 +73,12 @@ namespace Otumn.Ai
                             usedStyle = defaultNodeStyle;
                         }
                     }
+
+                    if(e.button == 1 && isSelected && rect.Contains(e.mousePosition))
+                    {
+                        ProcessContextMenu();
+                        e.Use();
+                    }
                     break;
                 case EventType.MouseUp:
                     isDragged = false;
@@ -77,6 +95,21 @@ namespace Otumn.Ai
             }
 
             return false;
+        }
+
+        private void ProcessContextMenu()
+        {
+            GenericMenu genericMenu = new GenericMenu();
+            genericMenu.AddItem(new GUIContent("Remove"), false, OnClickRemoveNode);
+            genericMenu.ShowAsContext();
+        }
+
+        private void OnClickRemoveNode()
+        {
+            if(OnRemoveNode != null)
+            {
+                OnRemoveNode(this);
+            }
         }
 
         public Rect Rect { get => rect; set => rect = value; }

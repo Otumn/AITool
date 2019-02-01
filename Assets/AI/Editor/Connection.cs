@@ -37,5 +37,8 @@ namespace Otumn.Ai
                 }
             }
         }
+
+        public ConnectionPoint InPoint { get => inPoint; set => inPoint = value; }
+        public ConnectionPoint OutPoint { get => outPoint; set => outPoint = value; }
     }
 }
