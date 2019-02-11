@@ -4,8 +4,19 @@ using UnityEngine;
 
 namespace Otumn.Ai
 {
-    public class NodeNetwork : ScriptableObject
+    public class NodeNetwork : MonoBehaviour
     {
-        
+        [SerializeField] private TimersCalculator timers;
+        [SerializeField] private List<AiNode> nodes;
+        [SerializeField] private List<AiNode> inputNodes;
+        [SerializeField] private List<AiNode> conditionsNodes;
+        [SerializeField] private List<AiNode> outputNodes;
+
+
+
+        public List<AiNode> Nodes { get => nodes; set => nodes = value; }
+        public List<AiNode> InputNodes { get => inputNodes; set => inputNodes = value; }
+        public List<AiNode> ConditionsNodes { get => conditionsNodes; set => conditionsNodes = value; }
+        public List<AiNode> OutputNodes { get => outputNodes; set => outputNodes = value; }
     }
 }
