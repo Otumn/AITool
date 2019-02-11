@@ -8,7 +8,7 @@ namespace Otumn.Ai
     /// <summary>
     /// Manages several timers at the same time.
     /// </summary>
-    public class TimersCalculator
+    public class TimersCalculator : MonoBehaviour
     {
         private List<Timer> timers = new List<Timer>();
         private float speed = 1f;
@@ -51,8 +51,9 @@ namespace Otumn.Ai
         public int LaunchNewTimer(float time, System.Action end)
         {
             timers.Add(new Timer(time, end, givenTimers));
+            Debug.Log("Index given to timer : " + givenTimers);
             givenTimers++;
-            return givenTimers--;
+            return givenTimers - 1;
         }
 
         /// <summary>
@@ -63,8 +64,23 @@ namespace Otumn.Ai
         public void StopTimer(int i, bool stop)
         {
             CheckForListExistance();
-            Timer t = timers[i];
+            Debug.Log("Index used : " + i);
+            Timer t = GetTimerFromUserIndex(i);
+            if (t.UserIndex == -1) return;
             t.Calculated = stop;
+            int index = GetTimerIndexFromUserIndex(i);
+            if (index != -1)
+            {
+                timers[index] = t;
+            }
+            if (stop)
+            {
+                Debug.Log("Timer stopped");
+            }
+            else
+            {
+                Debug.Log("Timer restart");
+            }
         }
 
         /// <summary>
@@ -75,9 +91,14 @@ namespace Otumn.Ai
         public void AddTime(int i, float addedTime)
         {
             CheckForListExistance();
-            Timer t = timers[i];
+            Timer t = GetTimerFromUserIndex(i);
+            if (t.UserIndex == -1) return;
             t.MaxTime += addedTime;
-            timers[i] = t;
+            int index = GetTimerIndexFromUserIndex(i);
+            if (index != -1)
+            {
+                timers[index] = t;
+            }
         }
 
         /// <summary>
@@ -87,7 +108,8 @@ namespace Otumn.Ai
         public void ShortCutTimer(int i)
         {
             CheckForListExistance();
-            Timer t = timers[i];
+            Timer t = GetTimerFromUserIndex(i);
+            if (t.UserIndex == -1) return;
             t.EndFunction.Invoke();
             timers.Remove(timers[i]);
         }
@@ -99,27 +121,50 @@ namespace Otumn.Ai
         public void DeleteTimer(int i)
         {
             CheckForListExistance();
-            Timer t = timers[i];
+            Timer t = GetTimerFromUserIndex(i);
+            if (t.UserIndex == -1) return;
             timers.Remove(timers[i]);
         }
 
         private bool CheckForListExistance()
         {
-            if (timers.Count < 1) return false;
+            if (timers.Count < 1)
+            {
+                Debug.Log("List existance false");
+                return false;
+            }
+            Debug.Log("List exist");
             return true;
         }
 
-        /*private Timer GetTimerFromUserIndex(int u)
+        private Timer GetTimerFromUserIndex(int u)
         {
             for (int i = 0; i < timers.Count; i++)
             {
                 if(timers[i].UserIndex == u)
                 {
+                    Debug.Log("Timer found");
                     return timers[i];
                 }
             }
-            return null;
-        }*/
+            Debug.Log("Timer not found");
+            Timer t = new Timer(0, null, -1);
+            return t;
+        }
+
+        private int GetTimerIndexFromUserIndex(int userIndex)
+        {
+            for (int i = 0; i < timers.Count; i++)
+            {
+                if(timers[i].UserIndex == userIndex)
+                {
+                    Debug.Log("Index found");
+                    return i;
+                }
+            }
+            Debug.Log("Index not found");
+            return -1; 
+        }
 
         public float Speed { get => speed; set => speed = value; }
         public bool Stopped { get => stopped; set => stopped = value; }
